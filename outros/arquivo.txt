@@ -1,0 +1,9 @@
+Pedido de Novo Estoque
+ração para canário: 20 para canário
+ração de sábia: 40 para sábia
+ração coleirinho: 90 para coleirinho
+ração arara: 45 para arara
+ração papagaio: 65 para papagaio
+ração calopsita: 63 para calopsita
+ração periquito: 62 para periquito
+comida gambá: 12 para gambá

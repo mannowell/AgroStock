@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Document Page</title>
+</head>
+<body>
+    <h1>Generate Document Page</h1>
+
+    {% if form.errors %}
+        <div style="color: red;">
+            {% for field, errors in form.errors.items() %}
+                {% for error in errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <label for="{{ form.documento.id }}">Escolha um documento:</label>
+        {{ form.documento() }}
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!-- orcamento.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Seus cabeçalhos e metadados aqui -->
+    <title>Orçamento</title>
+</head>
+<body>
+    <h1>Orçamento</h1>
+
+    <!-- Adicione o texto pré-definido aqui -->
+    <div>
+        <p>
+            <strong>ORÇAMENTO</strong>
+            <br>
+            Ao Setor financeiro – IAT (Sede)
+            <br>
+            Rua Engenheiros Rebouças, 1206 | Rebouças | Curitiba/PR | CEP 80215.100
+            <br><br>
+
+            <strong>1. IDENTIFICAÇÃO DA EMPRESA</strong>
+            <br>
+            EMPRESA 1:
+            <br>
+            EMPRESA 2:
+            <br>
+            EMPRESA 3:
+            <br><br>
+
+            <strong>2. DADOS DO MATERIAL/SERVIÇO</strong>
+            <br>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>EMPRESAS</th>
+                        <th>PRODUTO</th>
+                        <th>UND.</th>
+                        <th>QTD.</th>
+                        <th>VALOR UNITÁRIO</th>
+                        <th>VALOR TOTAL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Adicione linhas conforme necessário -->
+                    <tr>
+                        <td>EMPRESA 1</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>EMPRESA 2</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>EMPRESA 3</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br>
+
+            <strong>Informações relevantes:</strong>
+            <br>
+            1. Justificativa: Produtos base da pirâmide alimentar de diversos animais, principalmente psitacídeos, também servida para mamíferos. Indispensável para uma boa nutrição e uma boa recuperação.
+            <br>
+            2. O preço proposto acima contempla a pesquisa dos valores feito na data deste documento podendo haver alterações. É de interesse do setor financeiro optar pelo valor que lhe parecer melhor.
+            <br><br>
+
+            Curitiba/PR, XX de XXXXXXX de 202X.
+            <br><br>
+
+            Veterinário(a) Responsável: Tassia
+            <br><br>
+
+            ATENÇÃO: ALTERAR OS CAMPOS ANTES DE GERAR O DOCUMENTO
+        </p>
+    </div>
+
+    <!-- Adicione o formulário abaixo do texto -->
+    <form method="post" action="{{ url_for('create_document') }}" target="_blank" onsubmit="return gerarDocumento()">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+
+        <!-- Seus campos de formulário aqui -->
+        {{ form.nome_empresa.label }} {{ form.nome_empresa }}
+        {{ form.alimento.label }} {{ form.alimento }}
+        {{ form.valor_alimento.label }} {{ form.valor_alimento }}
+
+        <button type="submit" onclick="gerarDocumento()">Gerar Documento</button>
+    </form>
+
+    <!-- Seus scripts e outros elementos aqui -->
+</body>
+</html>

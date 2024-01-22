@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Document</title>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.5.1/tinymce.min.js" integrity="sha512-SJh7xW/9SLzllt0PqjnYlomfUPi7UYF40TXU5m6kVXLFr1hdKe+L8Tqqoi1y9vlsMQBdGC2lZI0d6w04Nn6piQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+    <h1>Edit Document</h1>
+    <form method="post" action="{{ url_for('create_document') }}" target="_blank" onsubmit="return gerarDocumento()">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+        {{ form.documento.label }} {{ form.documento }}
+        <button type="submit" onclick="gerarDocumento()">Gerar Documento</button>
+        <textarea id="default-editor" name="tinymce"></textarea>
+    </form>
+    <script>
+        tinymce.init({
+            selector: 'textarea',  // Seletor para todos os textareas
+            plugins: 'advlist autolink lists link image charmap print preview anchor',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+            height: 300
+        });
+
+        function gerarDocumento() {
+            // Adicione qualquer lógica necessária para preparar os dados antes de enviar o formulário
+            // (por exemplo, atualizar campos ocultos no formulário com dados adicionais)
+
+            // Envie o formulário para a rota /generate_document
+            document.querySelector('form').submit();
+        }
+    </script>
+
+    <script>
+        var alimentos;
+    
+        // Função para verificar os itens abaixo da reserva e gerar o texto padrão
+        function gerarTextoPadrao() {
+            var texto = "Solicitação de Compra de Alimentos:\n\n";
+    
+            alimentos.forEach(function (alimento) {
+                if (alimento.quantidade < alimento.reserva) {
+                    texto += `Nome: ${alimento.nome}\nQuantidade Atual: ${alimento.quantidade}\nReserva: ${alimento.reserva}\n\n`;
+                }
+            });
+    
+            // Preencha o conteúdo do TinyMCE com o texto gerado
+            tinymce.get('default-editor').setContent(texto);
+        }
+    
+        fetch('/api/alimentos')
+            .then(response => response.json())
+            .then(data => {
+                alimentos = data;
+                // Agora você pode usar a variável 'alimentos' conforme necessário
+                console.log(alimentos);
+    
+                // Chame a função para gerar o texto padrão após obter os alimentos
+                gerarTextoPadrao();
+            })
+            .catch(error => console.error('Erro ao obter alimentos:', error));
+    </script>
+    
+</body>
+</html>
