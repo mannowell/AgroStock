@@ -1,106 +1,70 @@
-<!-- orcamento.html -->
+{% extends "layout.html" %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- Seus cabeçalhos e metadados aqui -->
-    <title>Orçamento</title>
-</head>
-<body>
-    <h1>Orçamento</h1>
+{% block title %}Gerar Orçamento - AgroStock{% endblock %}
 
-    <!-- Adicione o texto pré-definido aqui -->
-    <div>
-        <p>
-            <strong>ORÇAMENTO</strong>
-            <br>
-            Ao Setor financeiro – IAT (Sede)
-            <br>
-            Rua Engenheiros Rebouças, 1206 | Rebouças | Curitiba/PR | CEP 80215.100
-            <br><br>
+{% block content %}
+<div class="grid" style="grid-template-columns: 1fr 1.5fr;">
+    <div class="card">
+        <h3>Novo Orçamento</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">Preencha os dados e gere o documento formatado.</p>
+        
+        <form action="{{ url_for('rotas.gerar_orcamento') }}" method="post">
+            <div class="form-group">
+                <label>Nome da Empresa</label>
+                {{ form.nome_empresa(placeholder="Ex: AgroTech Ltda") }}
+            </div>
+            <div class="form-group">
+                <label>Produto / Alimento</label>
+                {{ form.alimento(placeholder="Ex: Ração para Psitacídeos") }}
+            </div>
+            <div class="form-group">
+                <label>Valor Unitário (R$)</label>
+                {{ form.valor_alimento(placeholder="0.00") }}
+            </div>
+            <button type="submit">Gerar Documento (DOCX)</button>
+        </form>
+    </div>
 
-            <strong>1. IDENTIFICAÇÃO DA EMPRESA</strong>
-            <br>
-            EMPRESA 1:
-            <br>
-            EMPRESA 2:
-            <br>
-            EMPRESA 3:
-            <br><br>
-
-            <strong>2. DADOS DO MATERIAL/SERVIÇO</strong>
-            <br>
-            <table border="1">
+    <div class="card">
+        <h3>Pré-visualização do Modelo</h3>
+        <div style="background: var(--bg-color); padding: 1.5rem; border-radius: 8px; font-size: 0.875rem; border: 1px dashed var(--border-color);">
+            <div style="text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem;">
+                <h4 style="color: var(--primary-color);">ORÇAMENTO</h4>
+                <p>Setor financeiro – IAT</p>
+            </div>
+            
+            <p><strong>1. IDENTIFICAÇÃO DA EMPRESA</strong></p>
+            <p style="margin-left: 1rem; color: var(--text-muted);">[Nome da Empresa Preenchido]</p>
+            
+            <p style="margin-top: 1rem;"><strong>2. DADOS DO MATERIAL/SERVIÇO</strong></p>
+            <table style="font-size: 0.75rem; margin-top: 0.5rem;">
                 <thead>
                     <tr>
-                        <th>EMPRESAS</th>
-                        <th>PRODUTO</th>
-                        <th>UND.</th>
-                        <th>QTD.</th>
-                        <th>VALOR UNITÁRIO</th>
-                        <th>VALOR TOTAL</th>
+                        <th>Produto</th>
+                        <th>Und.</th>
+                        <th>Qtd.</th>
+                        <th>Valor Unit.</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Adicione linhas conforme necessário -->
                     <tr>
-                        <td>EMPRESA 1</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>EMPRESA 2</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>EMPRESA 3</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td style="color: var(--text-muted);">[Produto]</td>
+                        <td>UND</td>
+                        <td>1</td>
+                        <td style="color: var(--text-muted);">[R$ Valor]</td>
                     </tr>
                 </tbody>
             </table>
-            <br>
-
-            <strong>Informações relevantes:</strong>
-            <br>
-            1. Justificativa: Produtos base da pirâmide alimentar de diversos animais, principalmente psitacídeos, também servida para mamíferos. Indispensável para uma boa nutrição e uma boa recuperação.
-            <br>
-            2. O preço proposto acima contempla a pesquisa dos valores feito na data deste documento podendo haver alterações. É de interesse do setor financeiro optar pelo valor que lhe parecer melhor.
-            <br><br>
-
-            Curitiba/PR, XX de XXXXXXX de 202X.
-            <br><br>
-
-            Veterinário(a) Responsável: Tassia
-            <br><br>
-
-            ATENÇÃO: ALTERAR OS CAMPOS ANTES DE GERAR O DOCUMENTO
-        </p>
+            
+            <div style="margin-top: 1rem;">
+                <p><strong>Justificativa:</strong></p>
+                <p style="color: var(--text-muted); font-style: italic;">Produtos base da pirâmide alimentar de diversos animais...</p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; color: #9a3412; font-size: 0.8125rem;">
+            <strong>Dica:</strong> O documento gerado será compatível com Microsoft Word e Google Docs para edições finais.
+        </div>
     </div>
-
-    <!-- Adicione o formulário abaixo do texto -->
-    <form method="post" action="{{ url_for('create_document') }}" target="_blank" onsubmit="return gerarDocumento()">
-        {{ form.csrf_token }}
-        {{ form.hidden_tag() }}
-
-        <!-- Seus campos de formulário aqui -->
-        {{ form.nome_empresa.label }} {{ form.nome_empresa }}
-        {{ form.alimento.label }} {{ form.alimento }}
-        {{ form.valor_alimento.label }} {{ form.valor_alimento }}
-
-        <button type="submit" onclick="gerarDocumento()">Gerar Documento</button>
-    </form>
-
-    <!-- Seus scripts e outros elementos aqui -->
-</body>
-</html>
+</div>
+{% endblock %}
