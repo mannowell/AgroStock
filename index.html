@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AgroStock (Static Demo)</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <style>
+        /* Custom styles for the demo */
+        .badge-normal { background: #d1fae5; color: #059669; }
+        .badge-low { background: #fee2e2; color: #ef4444; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AgroStock <small style="font-size: 0.5em; opacity: 0.6;">(Demo Online)</small></h1>
+            <nav class="nav-links">
+                <a href="#" id="view-stock">Estoque</a>
+                <a href="#" id="view-orders">Orçamentos</a>
+                <button id="theme-toggle" style="background: transparent; color: var(--text-main); padding: 0.5rem;">🌓</button>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <!-- Dashboard Principal (Estoque) -->
+            <section id="stock-section">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Resumo do Estoque</h3>
+                        <div style="display: flex; gap: 2rem; margin-top: 1rem;">
+                            <div>
+                                <p style="font-size: 0.875rem; color: var(--text-muted);">Total de Itens</p>
+                                <p id="total-items" style="font-size: 1.5rem; font-weight: 700;">0</p>
+                            </div>
+                            <div>
+                                <p style="font-size: 0.875rem; color: var(--text-muted);">Alerta de Estoque</p>
+                                <p id="alert-items" style="font-size: 1.5rem; font-weight: 700; color: var(--danger);">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Adicionar Item</h3>
+                        <form id="add-item-form" style="margin-top: 1rem;">
+                            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <div class="form-group">
+                                    <label>Nome</label>
+                                    <input type="text" id="item-nome" placeholder="Ex: Milho" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantidade</label>
+                                    <input type="number" id="item-quantidade" placeholder="0" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Animal</label>
+                                <input type="text" id="item-animal" placeholder="Ex: Aves" required>
+                            </div>
+                            <button type="submit">Adicionar ao Estoque</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Itens em Estoque</h3>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="text" id="searchInput" placeholder="Pesquisar..." style="width: 250px;">
+                            <button id="export-csv" class="secondary">Exportar CSV</button>
+                        </div>
+                    </div>
+
+                    <table id="stockTable">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Animal</th>
+                                <th>Qtd.</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stock-list">
+                            <!-- JS populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Seção de Orçamentos (Mock) -->
+            <section id="orders-section" class="hidden">
+                <div class="card">
+                    <h3>Gerar Orçamento / Pedido</h3>
+                    <p style="margin-bottom: 1rem; color: var(--text-muted);">Selecione os itens e gere um documento profissional para seus fornecedores.</p>
+                    <textarea class="editor" id="order-editor">
+                        <h2>Pedido de Compra - AgroStock</h2>
+                        <p>Data: ${new Date().toLocaleDateString()}</p>
+                        <p>Por favor, forneça um orçamento para os seguintes itens:</p>
+                        <ul>
+                            <li>Milho (500kg)</li>
+                            <li>Nucleo (100kg)</li>
+                        </ul>
+                    </textarea>
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <button id="save-order">Salvar Pedido (Local)</button>
+                        <button class="secondary" onclick="alert('Funcionalidade de geração de Word (.docx) disponível apenas na versão completa com servidor Python.')">Baixar Word</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- Persistence Logic ---
+        const DB_KEY = 'agrostock_demo_db';
+        let stock = JSON.parse(localStorage.getItem(DB_KEY)) || [
+            { id: 1, nome: "Milho Grão", quantidade: 50, tipo_animal: "Aves" },
+            { id: 2, nome: "Farelo de Soja", quantidade: 5, tipo_animal: "Suínos" },
+            { id: 3, nome: "Núcleo Postura", quantidade: 12, tipo_animal: "Aves" }
+        ];
+
+        function saveStock() {
+            localStorage.setItem(DB_KEY, JSON.stringify(stock));
+            renderStock();
+        }
+
+        // --- UI Logic ---
+        function renderStock() {
+            const list = document.getElementById('stock-list');
+            const totalEl = document.getElementById('total-items');
+            const alertEl = document.getElementById('alert-items');
+            
+            list.innerHTML = '';
+            let lowCount = 0;
+
+            stock.forEach((item, index) => {
+                if (item.quantidade < 10) lowCount++;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">${item.nome}</td>
+                    <td>${item.tipo_animal}</td>
+                    <td>${item.quantidade}</td>
+                    <td>
+                        <span class="badge ${item.quantidade < 10 ? 'badge-low' : 'badge-normal'}">
+                            ${item.quantidade < 10 ? 'Baixo Estoque' : 'Normal'}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="deleteItem(${index})" style="padding: 0.25rem 0.5rem; background: var(--danger); font-size: 0.75rem;">Excluir</button>
+                    </td>
+                `;
+                list.appendChild(tr);
+            });
+
+            totalEl.textContent = stock.length;
+            alertEl.textContent = lowCount;
+        }
+
+        function deleteItem(index) {
+            if(confirm('Tem certeza?')) {
+                stock.splice(index, 1);
+                saveStock();
+            }
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('add-item-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('item-nome').value;
+            const quantidade = parseInt(document.getElementById('item-quantidade').value);
+            const tipo_animal = document.getElementById('item-animal').value;
+
+            stock.push({ id: Date.now(), nome, quantidade, tipo_animal });
+            saveStock();
+            e.target.reset();
+        });
+
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#stockTable tbody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+            });
+        });
+
+        // Navigation
+        document.getElementById('view-stock').addEventListener('click', () => {
+            document.getElementById('stock-section').classList.remove('hidden');
+            document.getElementById('orders-section').classList.add('hidden');
+        });
+
+        document.getElementById('view-orders').addEventListener('click', () => {
+            document.getElementById('stock-section').classList.add('hidden');
+            document.getElementById('orders-section').classList.remove('hidden');
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme) document.documentElement.setAttribute('data-theme', currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Export CSV (Mock)
+        document.getElementById('export-csv').addEventListener('click', () => {
+            let csv = "Item,Animal,Quantidade\n";
+            stock.forEach(i => csv += `${i.nome},${i.tipo_animal},${i.quantidade}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'estoque_agrostock.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+
+        // Init
+        renderStock();
+        
+        tinymce.init({
+            selector: 'textarea.editor',
+            plugins: 'advlist autolink lists link image charmap print preview anchor',
+            toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+            height: 300,
+            skin: (localStorage.getItem('theme') === 'dark' ? 'oxide-dark' : 'oxide'),
+            content_css: (localStorage.getItem('theme') === 'dark' ? 'dark' : 'default')
+        });
+    </script>
+</body>
+</html>
