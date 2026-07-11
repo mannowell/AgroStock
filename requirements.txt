@@ -5,3 +5,5 @@ flask-wtf
 python-docx
 pandas
 beautifulsoup4
+wtforms
+email-validator

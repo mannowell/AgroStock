@@ -26,19 +26,25 @@
         <h3>Adicionar Item</h3>
         <form action="{{ url_for('rotas.add') }}" method="post" style="margin-top: 1rem;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+            <div class="form-row">
                 <div class="form-group">
                     <label>Nome</label>
                     <input type="text" name="nome" placeholder="Ex: Milho" required>
                 </div>
                 <div class="form-group">
                     <label>Quantidade</label>
-                    <input type="number" name="quantidade" placeholder="0" required>
+                    <input type="number" name="quantidade" placeholder="0" required min="0">
                 </div>
             </div>
-            <div class="form-group">
-                <label>Tipo de Animal</label>
-                <input type="text" name="tipo_animal" placeholder="Ex: Aves" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Animal</label>
+                    <input type="text" name="tipo_animal" placeholder="Ex: Aves" required>
+                </div>
+                <div class="form-group">
+                    <label>Reserva (opcional)</label>
+                    <input type="number" name="reserva" placeholder="0" min="0">
+                </div>
             </div>
             <button type="submit">Adicionar ao Estoque</button>
         </form>
@@ -51,6 +57,7 @@
         <div style="display: flex; gap: 1rem;">
             <input type="text" id="searchInput" placeholder="Pesquisar..." style="width: 250px;">
             <a href="{{ url_for('rotas.export') }}"><button class="secondary">Exportar CSV</button></a>
+            <a href="{{ url_for('rotas.generate_document') }}"><button class="secondary">Gerar Pedido</button></a>
         </div>
     </div>
 
@@ -60,6 +67,7 @@
                 <th>Item</th>
                 <th>Animal</th>
                 <th>Qtd.</th>
+                <th>Reserva</th>
                 <th>Status</th>
                 <th>Ações</th>
             </tr>
@@ -70,6 +78,7 @@
                 <td style="font-weight: 500;">{{ alimento.nome }}</td>
                 <td>{{ alimento.tipo_animal }}</td>
                 <td>{{ alimento.quantidade }}</td>
+                <td>{{ alimento.reserva or '-' }}</td>
                 <td>
                     {% if alimento.quantidade < 10 %}
                     <span class="badge badge-low">Baixo Estoque</span>
@@ -78,8 +87,13 @@
                     {% endif %}
                 </td>
                 <td>
-                    <!-- Ações futuras: Editar/Excluir -->
-                    <button style="padding: 0.25rem 0.5rem; background: var(--border-color); color: var(--text-main); font-size: 0.75rem;">Detalhes</button>
+                    <div class="action-buttons">
+                        <a href="{{ url_for('rotas.edit', id=alimento.id) }}" class="btn-edit">Editar</a>
+                        <form action="{{ url_for('rotas.delete', id=alimento.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este item?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-delete">Excluir</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
